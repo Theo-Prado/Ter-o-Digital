@@ -84,4 +84,6 @@ Este projeto nasceu da vontade de tornar a prática da oração mais acessível 
 
 ---
 
+## 🕊️ Frase
 
+"Dai-me um exército que reze o rosário e vencerei o mundo" - Papa Pio X
