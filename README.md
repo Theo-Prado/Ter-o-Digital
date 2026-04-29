@@ -84,4 +84,4 @@ Este projeto nasceu da vontade de tornar a prática da oração mais acessível 
 
 ---
 
-*"A oração é a chave da manhã e o ferrolho da noite." — Mahatma Gandhi*
+
