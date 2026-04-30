@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terço Digital</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card: rgba(20, 25, 40, 0.85);
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --accent: #f59e0b;
+      --accent-glow: rgba(245, 158, 11, 0.4);
+      --btn-primary: linear-gradient(135deg, #f59e0b, #d97706);
+      --btn-secondary: #334155;
+      --radius: 18px;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    /* Fundo animado sutil */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -50%; left: -50%; width: 200%; height: 200%;
+      background: radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.05) 0%, transparent 50%);
+      animation: rotate 30s linear infinite;
+      z-index: -1;
+      pointer-events: none;
+    }
+    @keyframes rotate { to { transform: rotate(360deg); } }
+
+    .container {
+      width: 100%;
+      max-width: 480px;
+      perspective: 1000px;
+    }
+
+    .screen {
+      display: none;
+      opacity: 0;
+      transform: translateY(15px);
+      transition: var(--transition);
+    }
+    .screen.active {
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .card {
+      background: var(--card);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: var(--radius);
+      padding: 32px 24px;
+      text-align: center;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    h1 { font-size: 2rem; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; }
+    h2 { font-size: 1.5rem; font-weight: 600; margin-bottom: 24px; }
+    p { color: var(--text-muted); line-height: 1.6; margin-bottom: 24px; }
+
+    input {
+      width: 100%;
+      padding: 14px 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      color: var(--text);
+      font-size: 1rem;
+      margin-bottom: 16px;
+      outline: none;
+      transition: var(--transition);
+    }
+    input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+
+    .btn {
+      width: 100%;
+      padding: 14px 20px;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn.primary { background: var(--btn-primary); color: #0f172a; }
+    .btn.primary:hover { box-shadow: 0 4px 20px var(--accent-glow); }
+    .btn.secondary { background: var(--btn-secondary); color: var(--text-muted); margin-top: 12px; }
+    .btn.secondary:hover { background: #475569; color: var(--text); }
+
+    /* Barra de progresso */
+    .progress-container {
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+      margin: 20px 0 30px;
+      overflow: hidden;
+    }
+    #progress-fill {
+      height: 100%;
+      background: var(--accent);
+      width: 0%;
+      transition: width 0.4s ease;
+      border-radius: 3px;
+    }
+
+    .mystery-tag {
+      display: inline-block;
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--accent);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .prayer-name { font-size: 1.8rem; font-weight: 700; margin-bottom: 8px; min-height: 2.2em; }
+    .counter { font-size: 1rem; color: var(--text-muted); margin-bottom: 28px; font-variant-numeric: tabular-nums; }
+
+    /* Contas do Terço */
+    .beads {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      min-height: 24px;
+    }
+    .bead {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: #1e293b;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+    .bead.done { background: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.5); transform: scale(0.9); }
+    .bead.current { background: var(--accent); transform: scale(1.25); box-shadow: 0 0 10px var(--accent-glow); }
+
+    /* Animação de feedback */
+    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.03); } 100% { transform: scale(1); } }
+    .btn.animate { animation: pulse 0.3s ease; }
+
+    /* Tela final */
+    .completion-card { border: 2px solid rgba(245, 158, 11, 0.2); }
+    .emoji-large { font-size: 3rem; margin-bottom: 16px; display: block; }
+    .quote { font-style: italic; color: var(--text-muted); margin-top: 16px; font-size: 0.95rem; }
+
+    /* Responsividade */
+    @media (max-width: 400px) {
+      h1 { font-size: 1.6rem; }
+      .prayer-name { font-size: 1.5rem; }
+      .card { padding: 24px 18px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- TELA DE BOAS-VINDAS -->
+  <section id="welcome-screen" class="screen active">
+    <div class="card">
+      <h1>✝️ Terço Digital</h1>
+      <p>Uma experiência serena para sua oração diária.</p>
+      <input type="text" id="name-input" placeholder="Digite seu nome..." maxlength="30" autocomplete="off">
+      <button id="start-btn" class="btn primary">Iniciar Terço</button>
+      <button id="demo-btn" class="btn secondary">Modo Demonstração</button>
+    </div>
+  </section>
+
+  <!-- TELA DE ORAÇÃO -->
+  <section id="prayer-screen" class="screen">
+    <div class="card">
+      <div class="progress-container"><div id="progress-fill"></div></div>
+      <div id="mystery-label" class="mystery-tag" style="display:none;"></div>
+      <h2 id="prayer-name" class="prayer-name">Carregando...</h2>
+      <div id="prayer-counter" class="counter">1 / 1</div>
+      <button id="pray-btn" class="btn primary">✨ Rezar</button>
+      <div id="beads-container" class="beads"></div>
+      <button id="exit-btn" class="btn secondary">Pausar / Sair</button>
+    </div>
+  </section>
+
+  <!-- TELA DE CONCLUSÃO -->
+  <section id="completion-screen" class="screen">
+    <div class="card completion-card">
+      <span class="emoji-large">🕊️</span>
+      <h2>Terço Finalizado</h2>
+      <p>Obrigado por rezar conosco, <strong id="final-name"></strong>.</p>
+      <p>Que a paz e a luz do Espírito Santo iluminem seu dia e sua família.</p>
+      <div class="quote">"A oração é o respiro da alma."</div>
+      <button id="restart-btn" class="btn primary" style="margin-top:24px;">Rezar Novamente</button>
+    </div>
+  </section>
+</div>
+
+<script>
+  // DADOS ORIGINAIS DO TERÇO
+  const oracoes_iniciais = [
+    { nome: "Em Nome do Pai", qtd: 1 },
+    { nome: "Credo", qtd: 1 },
+    { nome: "Pai Nosso", qtd: 1 },
+    { nome: "Ave Maria", qtd: 3 },
+    { nome: "Glória", qtd: 1 }
+  ];
+
+  const oracoes_misterio = [
+    { nome: "Pai Nosso", qtd: 1 },
+    { nome: "Ave Maria", qtd: 10 },
+    { nome: "Glória", qtd: 1 },
+    { nome: "Oh meu Jesus", qtd: 1 }
+  ];
+
+  const misterios = ["1º Mistério", "2º Mistério", "3º Mistério", "4º Mistério", "5º Mistério"];
+  const oracao_final = { nome: "Salve Rainha", qtd: 1 };
+
+  // ESTADO DA APLICAÇÃO
+  let state = {
+    userName: "",
+    queue: [],
+    currentIndex: 0,
+    currentCount: 0,
+    isRunning: false
+  };
+
+  // ELEMENTOS DOM
+  const els = {
+    screens: document.querySelectorAll('.screen'),
+    nameInput: document.getElementById('name-input'),
+    startBtn: document.getElementById('start-btn'),
+    demoBtn: document.getElementById('demo-btn'),
+    prayerScreen: document.getElementById('prayer-screen'),
+    prayerName: document.getElementById('prayer-name'),
+    prayerCounter: document.getElementById('prayer-counter'),
+    mysteryLabel: document.getElementById('mystery-label'),
+    progressFill: document.getElementById('progress-fill'),
+    prayBtn: document.getElementById('pray-btn'),
+    exitBtn: document.getElementById('exit-btn'),
+    restartBtn: document.getElementById('restart-btn'),
+    finalName: document.getElementById('final-name'),
+    beadsContainer: document.getElementById('beads-container')
+  };
+
+  // FUNÇÕES PRINCIPAIS
+  function buildQueue() {
+    state.queue = [];
+    oracoes_iniciais.forEach(p => state.queue.push({ type: 'prayer', ...p }));
+    misterios.forEach(m => {
+      state.queue.push({ type: 'label', nome: m });
+      oracoes_misterio.forEach(p => state.queue.push({ type: 'prayer', ...p }));
+    });
+    state.queue.push({ type: 'prayer', ...oracao_final });
+  }
+
+  function showScreen(id) {
+    els.screens.forEach(s => s.classList.remove('active'));
+    setTimeout(() => document.getElementById(id).classList.add('active'), 50);
+  }
+
+  function updateUI() {
+    const item = state.queue[state.currentIndex];
+    
+    // Atualiza nome da oração e contador
+    if (item.type === 'label') {
+      els.prayerName.textContent = `📖 ${item.nome}`;
+      els.prayerCounter.textContent = '';
+      els.mysteryLabel.style.display = 'inline-block';
+      els.mysteryLabel.textContent = `Mistério ${item.nome.replace('º', '')}`;
+      els.prayBtn.textContent = "Continuar";
+      els.beadsContainer.innerHTML = '';
+    } else {
+      els.prayerName.textContent = item.nome;
+      els.prayerCounter.textContent = `${state.currentCount + 1} / ${item.qtd}`;
+      els.mysteryLabel.style.display = 'none';
+      els.prayBtn.textContent = "✨ Rezar";
+      renderBeads(item);
+    }
+
+    // Barra de progresso
+    const progress = ((state.currentIndex) / (state.queue.length - 1)) * 100;
+    els.progressFill.style.width = `${Math.min(100, Math.max(2, progress))}%`;
+  }
+
+  function renderBeads(item) {
+    els.beadsContainer.innerHTML = '';
+    if (item.qtd > 1) {
+      for (let i = 0; i < item.qtd; i++) {
+        const bead = document.createElement('div');
+        bead.className = `bead ${i < state.currentCount ? 'done' : ''} ${i === state.currentCount ? 'current' : ''}`;
+        els.beadsContainer.appendChild(bead);
+      }
+    }
+  }
+
+  function advancePrayer() {
+    if (!state.isRunning) return;
+    
+    const item = state.queue[state.currentIndex];
+    
+    if (item.type === 'label') {
+      // Avanço automático para o próximo item
+      state.currentIndex++;
+    } else {
+      state.currentCount++;
+      if (state.currentCount >= item.qtd) {
+        state.currentCount = 0;
+        state.currentIndex++;
+      }
+    }
+
+    if (state.currentIndex >= state.queue.length) {
+      finishApp();
+    } else {
+      // Animação de feedback
+      els.prayBtn.classList.add('animate');
+      setTimeout(() => els.prayBtn.classList.remove('animate'), 300);
+      updateUI();
+    }
+  }
+
+  function startApp(name) {
+    state.userName = name || "Visitante";
+    els.finalName.textContent = state.userName;
+    buildQueue();
+    state.currentIndex = 0;
+    state.currentCount = 0;
+    state.isRunning = true;
+    
+    showScreen('prayer-screen');
+    updateUI();
+  }
+
+  function finishApp() {
+    state.isRunning = false;
+    showScreen('completion-screen');
+    els.progressFill.style.width = '100%';
+  }
+
+  function exitApp() {
+    if (confirm("Deseja realmente pausar/sair do Terço?")) {
+      state.isRunning = false;
+      els.nameInput.value = '';
+      showScreen('welcome-screen');
+    }
+  }
+
+  // EVENT LISTENERS
+  els.startBtn.addEventListener('click', () => {
+    const name = els.nameInput.value.trim();
+    if (name) startApp(name);
+    else els.nameInput.focus();
+  });
+
+  els.demoBtn.addEventListener('click', () => startApp("Peregrino"));
+
+  els.prayBtn.addEventListener('click', advancePrayer);
+  els.exitBtn.addEventListener('click', exitApp);
+  els.restartBtn.addEventListener('click', () => {
+    els.nameInput.value = '';
+    showScreen('welcome-screen');
+  });
+
+  // Atalho de teclado (Espaço ou Enter)
+  document.addEventListener('keydown', (e) => {
+    if ((e.code === 'Space' || e.code === 'Enter') && state.isRunning) {
+      e.preventDefault();
+      advancePrayer();
+    }
+    if (e.code === 'Enter' && document.activeElement === els.nameInput) {
+      els.startBtn.click();
+    }
+  });
+
+  // Foco automático no input ao carregar
+  window.addEventListener('load', () => els.nameInput.focus());
+</script>
+
+</body>
+</html>
