@@ -1,33 +1,47 @@
-oracoes = {"Ave Maria":10,"Glória":1,"Oh meu Jesus":1,"Pai Nosso":1,"Mistério":1}
-oracoes_iniciais = {"Em Nome do Pai":1,"Credo":1,"Pai Nosso":1,"Ave Maria":3,"Glória":1,"Oh Meu Jesus":1,"Pai-Nosso":1}
-terco = True
-primeira_parte = True
-segunda_parte = True
-contador = 0
-nome = input("Digite seu nome:")
-print()
-print(f"Seja bem vindo(a) ao Terço Digital, {nome}!")
-print()
-print("Para cada Pai Nosso, Ave Maria ou outra oração que você rezar digite 1 para adicionar a contagem.")
-print()
-while terco:
-  while primeira_parte:
-    for item, quantidade in oracoes_iniciais.items():
-      for i in range(quantidade):
-        print(f"Reze: {item}")
-        oracao_atual = int(input("Digite 1 para ir para a próxima oração:"))
-        contador = contador + oracao_atual
-        if contador >= 9:
-          primeira_parte = False
-  contador = 0
-  while segunda_parte:
-        for item, quantidade in oracoes.items():
-          for i in range(quantidade):
-            print(f"Reze: {item}")
-            oracao_atual = int(input("Digite 1 para ir para a próxima oração:"))
-            contador = contador + oracao_atual
-        if contador >= 70:
-          print("Reze: Salve Rainha")
-          print(f"Terço finalizado! Obrigado por utilizar o Terço Digital, {nome}!")
-          segunda_parte = False
-          terco = False
+oracoes = {"Pai Nosso":1, "Ave Maria":10, "Glória":1, "Oh meu Jesus":1}
+oracoes_iniciais = {
+    "Em Nome do Pai":1,
+    "Credo":1,
+    "Pai Nosso":1,
+    "Ave Maria":3,
+    "Glória":1
+}
+
+nome = input("Digite seu nome: ")
+print(f"\nSeja bem-vindo(a) ao Terço Digital, {nome}!\n")
+
+def rezar(lista_oracoes):
+    for item, quantidade in lista_oracoes.items():
+        for _ in range(quantidade):
+            while True:
+                print(f"Reze: {item}")
+                entrada = input("Digite 1 para continuar ou 0 para sair: ")
+
+                if entrada in ["0", "1"]:
+                    break
+                else:
+                    print("Entrada inválida!")
+
+            if entrada == "0":
+                print(f"\nObrigado por utilizar o Terço Digital, {nome}!")
+                return False
+    return True
+
+if not rezar(oracoes_iniciais):
+    exit()
+
+misterios = [
+    "1º Mistério",
+    "2º Mistério",
+    "3º Mistério",
+    "4º Mistério",
+    "5º Mistério"
+]
+
+for misterio in misterios:
+    print(f"\n{misterio}")
+    if not rezar(oracoes):
+        exit()
+
+print("\nReze: Salve Rainha")
+print(f"Terço finalizado! Obrigado por utilizar o Terço Digital, {nome}!")
