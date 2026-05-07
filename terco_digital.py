@@ -4,7 +4,8 @@ oracoes_iniciais = {
     "Credo":1,
     "Pai Nosso":1,
     "Ave Maria":3,
-    "Glória":1
+    "Glória":1,
+    "Oh meu Jesus":1
 }
 
 nome = input("Digite seu nome: ")
