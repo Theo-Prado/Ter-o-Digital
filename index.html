@@ -220,7 +220,8 @@
     { nome: "Credo", qtd: 1 },
     { nome: "Pai Nosso", qtd: 1 },
     { nome: "Ave Maria", qtd: 3 },
-    { nome: "Glória", qtd: 1 }
+    { nome: "Glória", qtd: 1 },
+    { nome: "Oh meu Jesus", qtd: 1 }
   ];
 
   const oracoes_misterio = [
@@ -284,7 +285,7 @@
       els.prayerName.textContent = `📖 ${item.nome}`;
       els.prayerCounter.textContent = '';
       els.mysteryLabel.style.display = 'inline-block';
-      els.mysteryLabel.textContent = `Mistério ${item.nome.replace('º', '')}`;
+      els.mysteryLabel.textContent = item.nome;
       els.prayBtn.textContent = "Continuar";
       els.beadsContainer.innerHTML = '';
     } else {
